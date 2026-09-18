@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: telegram-bot-api
+    runtime: docker
+    plan: free            # occasional use -> free tier is fine; will sleep when idle
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: TELEGRAM_API_ID
+        sync: false       # set manually in Render dashboard (secret)
+      - key: TELEGRAM_API_HASH
+        sync: false       # set manually in Render dashboard (secret)

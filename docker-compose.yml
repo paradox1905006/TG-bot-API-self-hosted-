@@ -1,0 +1,8 @@
+services:
+  telegram-bot-api:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
