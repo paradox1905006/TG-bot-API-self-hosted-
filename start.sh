@@ -36,6 +36,22 @@ telegram-bot-api \
   --http-port="${TBA_PORT}" \
   --verbosity=2 &
 
+# telegram-bot-api never deletes anything it downloads into /data --
+# every large file streamed through /localfile/ stays on disk forever,
+# which will eventually fill Render's disk and start failing new
+# downloads. Sweep files older than 24h once an hour, in the background,
+# for as long as this container runs (Render's ephemeral disk also wipes
+# on every redeploy/restart regardless, but that can be hours or days
+# away on a service that isn't redeployed often).
+(
+  while true; do
+    sleep 3600
+    find /data -type f -mmin +1440 -print -delete 2>/dev/null | while read -r f; do
+      echo "[cleanup] removed old cached file: $f"
+    done
+  done
+) &
+
 echo "Starting public entrypoint (proxy + /localfile/) on port ${PORT} ..."
 export TBA_PORT
 exec python3 /fileserver.py "${PORT}"
